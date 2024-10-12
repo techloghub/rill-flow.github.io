@@ -17,6 +17,60 @@ sidebar_position: 1
 
 ### 下载Rill-Flow源码
 ```shell
+<<<<<<< HEAD
+cat << EOF > docker-compose.yaml
+version: '3'
+services:
+  rill-flow:
+    image: weibocom/rill-flow
+    depends_on:
+      - cache
+      - jaeger
+    links:
+      - rill-flow-mysql
+    ports:
+      - "8080:8080"
+    environment:
+      - RILL_FLOW_DESCRIPTOR_REDIS_HOST=cache
+      - RILL_FLOW_DEFAULT_REDIS_HOST=cache
+      - RILL_FLOW_TRACE_ENDPOINT=http://jaeger:4317
+      - RILL_FLOW_CALLBACK_URL=http://rill-flow:8080/flow/finish.json
+      - RILL_FLOW_TRACE_QUERY_HOST=http://jaeger:16686
+  rill-flow-mysql:
+    image: mariadb:10.6.4-focal
+    stdin_open: true
+    tty: true
+    container_name: rill-flow-mysql
+    restart: always
+    command: --bind-address=0.0.0.0 --default-authentication-plugin=mysql_native_password
+    volumes:
+        - ./docker/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=rill_flow
+      - MYSQL_ROOT_HOST=%
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning
+  jaeger:
+    image: jaegertracing/all-in-one:1.39
+    restart: always
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+  ui:
+    image: weibocom/rill-flow-ui
+    ports:
+      - "8088:80"
+    depends_on:
+      - rill-flow
+      - jaeger
+    environment:
+      - BACKEND_SERVER=http://rill-flow:8080
+  sample-executor:
+    image: weibocom/rill-flow-sample:sample-executor 
+EOF
+=======
 git clone https://github.com/weibocom/rill-flow.git
 ```
 
@@ -25,6 +79,7 @@ git clone https://github.com/weibocom/rill-flow.git
 
 ```shell
 cd rill-flow/docker
+>>>>>>> 30fad45e392b355cbd1f3335ed9ee4e9b1ad8af7
 docker-compose up -d
 ```
 > 如果您的系统安装了 Docker Compose V2 而不是 V1，请使用 `docker compose` 而不是 `docker-compose`。通过`docker compose version`检查这是否为情况。在[这里](https://docs.docker.com/compose/#compose-v2-and-the-new-docker-compose-command)阅读更多信息。
